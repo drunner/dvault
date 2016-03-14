@@ -162,7 +162,7 @@ function main {
          configure)
             [ ! -z "${VAULT_ADDR:-}" ] || die "Vault Address not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
             [ ! -z "${VAULT_TOKEN:-}" ] || die "Vault Token not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
-            COMMANDOPTS=("-e" "VAULT_ADDR=$VAULT_ADDR" "-e" "VAULT_TOKEN=$VAULT_TOKEN")
+            COMMANDOPTS=("--entrypoint" "/bin/bash" "-e" "VAULT_ADDR=$VAULT_ADDR" "-e" "VAULT_TOKEN=$VAULT_TOKEN")
             dockerrun configure
             ;;
             
