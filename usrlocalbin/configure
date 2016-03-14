@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "export VAULT_ADDR=$VAULT_ADDR" > /config/vars.sh
+echo "export VAULT_TOKEN=$VAULT_TOKEN" >> /config/vars.sh 
