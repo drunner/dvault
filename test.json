@@ -1,0 +1,6 @@
+{
+  "volume": "crazy-cool-thing",
+  "secrets": [
+    "ssl/adi.co.nz.crt"
+  ]
+}
