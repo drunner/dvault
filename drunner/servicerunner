@@ -169,9 +169,10 @@ function main {
          load)
             [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} load CONFIG"
             local VAULT_CONFIG_FILE="$(realpath $2)"
-            COMMANDOPTS=("-v" "$VAULT_CONFIG_FILE:/import/config.json:ro")
+            [ -f "$VAULT_CONFIG_FILE" ] || die "Not a file: $VAULT_CONFIG_FILE"
+            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "$VAULT_CONFIG_FILE:/import/config.json:ro")
             local OUTPUT_VOLUME="$(dockerrun volume.py)"
-            COMMANDOPTS=("-v" "$VAULT_CONFIG_FILE:/import/config.json:ro" "-v" "$OUTPUT_VOLUME:/output")
+            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "$VAULT_CONFIG_FILE:/import/config.json:ro" "-v" "$OUTPUT_VOLUME:/output")
             dockerrun vault-load.py
             ;;
             
