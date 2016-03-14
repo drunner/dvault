@@ -15,7 +15,7 @@ COPY ["./drunner","/drunner"]
 RUN chmod a-w -R /drunner
 
 COPY ["entrypoint.sh", "/entrypoint.sh"]
-RUN mkdir -p /output && chown druser:drgroup /output && chmod a+x /entrypoint.sh
+RUN mkdir -p /output && chown druser:drgroup /output && chmod a+w /output && chmod a+x /entrypoint.sh
 
 COPY ["usrlocalbin", "/usr/local/bin"]
 
