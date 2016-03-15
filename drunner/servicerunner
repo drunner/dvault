@@ -39,7 +39,7 @@ SYNOPSIS
    ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}
       Configure Vault
    
-   ${CODE_S}${SERVICENAME} load CONFIG${CODE_E}
+   ${CODE_S}${SERVICENAME} load CONFIG [UID] [GID]${CODE_E}
       Load vault values into configuration volume
    
 DESCRIPTION
@@ -167,13 +167,16 @@ function main {
             ;;
             
          load)
-            [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} load CONFIG"
+            [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} load CONFIG [UID] [GID]"
+            if [ ! -z "${3:-}" ]; then CONTAINER_UID="${3}"; else CONTAINER_UID="0"; fi
+            if [ ! -z "${4:-}" ]; then CONTAINER_GID="${4}"; else CONTAINER_GID="0"; fi
+            
             local VAULT_CONFIG_FILE="$(realpath $2)"
             [ -f "$VAULT_CONFIG_FILE" ] || die "Not a file: $VAULT_CONFIG_FILE"
             COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "$VAULT_CONFIG_FILE:/import/config.json:ro")
             local OUTPUT_VOLUME="$(dockerrun volume.py)"
-            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "$VAULT_CONFIG_FILE:/import/config.json:ro" "-v" "$OUTPUT_VOLUME:/output")
-            dockerrun vault-load.py
+            COMMANDOPTS=("-v" "$VAULT_CONFIG_FILE:/import/config.json:ro" "-v" "$OUTPUT_VOLUME:/output")
+            dockerrun vault-load-wrapper.sh "$CONTAINER_UID" "$CONTAINER_GID"
             ;;
             
          #--- unrecognised commands
