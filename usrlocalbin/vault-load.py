@@ -36,7 +36,7 @@ for secret in secrets:
    s = client.read(SECRET_PATH+secret)
    if secret == 'dvault.json':
       extra_secrets(s["data"]["value"])
-      break
+      continue
    f = open('/tmp/output/'+secret, 'w')
    f.write(s["data"]["value"])
    f.close()
