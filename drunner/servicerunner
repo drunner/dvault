@@ -39,11 +39,27 @@ SYNOPSIS
    ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}
       Configure Vault
    
-   ${CODE_S}${SERVICENAME} load CONFIG [UID] [GID]${CODE_E}
+   ${CODE_S}${SERVICENAME} load PROJECT VOLUME [UID] [GID]${CODE_E}
       Load vault values into configuration volume
    
+   ${CODE_S}${SERVICENAME} add PROJECT FILE${CODE_E}
+      Add (secret) FILE to Vault in the current context under PROJECT. This file will be included in the next load
+      
+   ${CODE_S}${SERVICENAME} list PROJECT${CODE_E}
+      List secrets associated with PROJECT in the current context
+   
+   ${CODE_S}${SERVICENAME} delete PROJECT SECRET${CODE_E}
+      Delete a secret from PROJECT in the current context
+   
+   ${CODE_S}${SERVICENAME} context [NEW_CONTEXT]${CODE_E}
+      With no arguments will show what context ${SERVICENAME} is in. Optional argument changes context
+      
+   ${CODE_S}${SERVICENAME} import CONFIG_FILE${CODE_E}
+      Imports secrets as set in config file to a defined project. Useful for copying secrets rather than referencing 
+   
 DESCRIPTION
-   Helpers for dvault. Built from ${IMAGENAME}.
+   Helper container for dRunner managed services using HashiCorp Vault. Can be used in service runner to populated a
+   volume with required secrets on install/upgrade if no Vault support is built into the application.
    
 EOF
 }
@@ -162,21 +178,60 @@ function main {
          configure)
             [ ! -z "${VAULT_ADDR:-}" ] || die "Vault Address not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
             [ ! -z "${VAULT_TOKEN:-}" ] || die "Vault Token not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
-            COMMANDOPTS=("--entrypoint" "/bin/bash" "-e" "VAULT_ADDR=$VAULT_ADDR" "-e" "VAULT_TOKEN=$VAULT_TOKEN")
+            [ ! -z "${VAULT_ENV:-}" ] || die "Vault Environment not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
+            COMMANDOPTS=("--entrypoint" "/bin/bash" "-e" "VAULT_ADDR=$VAULT_ADDR" "-e" "VAULT_TOKEN=$VAULT_TOKEN" "-e" "VAULT_ENV=$VAULT_ENV")
             dockerrun configure
             ;;
             
          load)
-            [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} load CONFIG [UID] [GID]"
-            if [ ! -z "${3:-}" ]; then CONTAINER_UID="${3}"; else CONTAINER_UID="0"; fi
-            if [ ! -z "${4:-}" ]; then CONTAINER_GID="${4}"; else CONTAINER_GID="0"; fi
+            [ ! -z "${3:-}" ] || die "Usage: ${SERVICENAME} load PROJECT VOLUME [UID] [GID]"
+            if [ ! -z "${4:-}" ]; then CONTAINER_UID="${4}"; else CONTAINER_UID="0"; fi
+            if [ ! -z "${5:-}" ]; then CONTAINER_GID="${5}"; else CONTAINER_GID="0"; fi
             
-            local VAULT_CONFIG_FILE="$(realpath $2)"
-            [ -f "$VAULT_CONFIG_FILE" ] || die "Not a file: $VAULT_CONFIG_FILE"
-            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "$VAULT_CONFIG_FILE:/import/config.json:ro")
-            local OUTPUT_VOLUME="$(dockerrun volume.py)"
-            COMMANDOPTS=("-v" "$VAULT_CONFIG_FILE:/import/config.json:ro" "-v" "$OUTPUT_VOLUME:/output")
-            dockerrun vault-load-wrapper.sh "$CONTAINER_UID" "$CONTAINER_GID"
+            OUTPUT_VOLUME="$3"
+            
+            COMMANDOPTS=("-v" "$OUTPUT_VOLUME:/output")
+            dockerrun vault-load-wrapper.sh "$2" "$CONTAINER_UID" "$CONTAINER_GID"
+            ;;
+            
+          add)
+            [ ! -z "${3:-}" ] || die "Usage: ${SERVICENAME} add PROJECT FILE"
+            SECRET_FILE=$(realpath $3)
+            FILENAME=$(basename $SECRET_FILE)
+            [ -f "${SECRET_FILE}" ] || die "Not a file: ${SECRET_FILE}"
+            
+            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "${SECRET_FILE}:/import/secret:ro")
+            dockerrun bash -c "vault write secret/dvault/\$VAULT_ENV/${2}/${FILENAME} value=@/import/secret"
+            ;;
+          
+          list)
+            [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} ls PROJECT"
+            
+            dockerrun bash -c "echo \"${CODE_S}Secrets in '\${VAULT_ENV}' context${CODE_E}\"; vault list secret/dvault/\$VAULT_ENV/${2}"
+            ;;
+          
+          delete)
+            [ ! -z "${3:-}" ] || die "Usage: ${SERVICENAME} delete PROJECT SECRET"
+            
+            dockerrun bash -c "vault delete secret/dvault/\$VAULT_ENV/${2}/${3}"
+            ;;
+          
+          context)
+            if [ -z "${2:-}" ]; then
+               dockerrun bash -c 'echo ${VAULT_ENV}'
+            else
+               dockerrun bash -c "VAULT_ENV=${2} configure"
+               echo "${CODE_S}dVault context updated: ${2}${CODE_E}"
+            fi
+            ;;
+            
+          import)
+            [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} import CONFIG"
+            CONFIG_FILE=$(realpath $2)
+            [ -f "${CONFIG_FILE}" ] || die "Not a file: ${CONFIG_FILE}"
+            
+            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "${CONFIG_FILE}:/import/config.json:ro")
+            dockerrun import.py
             ;;
             
          #--- unrecognised commands
