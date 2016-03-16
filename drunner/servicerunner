@@ -192,6 +192,7 @@ function main {
             
             COMMANDOPTS=("-v" "$OUTPUT_VOLUME:/output")
             dockerrun vault-load-wrapper.sh "$2" "$CONTAINER_UID" "$CONTAINER_GID"
+            echo "Secrets loaded for ${2}"
             ;;
             
           add)
