@@ -11,6 +11,6 @@
         image: drunner/dvault
         config_command: dvault configure
       environment:
-        VAULT_ADDR: {{ vault_addr }}
-        VAULT_TOKEN: {{ vault_token }}
-        VAULT_CONTEXT: {{ vault_context }}
+        VAULT_ADDR: "{{ vault_addr }}"
+        VAULT_TOKEN: "{{ vault_token }}"
+        VAULT_CONTEXT: "{{ vault_context }}"
