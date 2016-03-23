@@ -17,6 +17,9 @@ def load_secrets(project):
       secrets = json.loads(secrets)
    except ValueError, e:
       return json.loads('[]')
+   except subprocess.CalledProcessError, e:
+      print "WARNING: Vault not accessible, continuing anyway"
+      sys.exit()
    return secrets
    
 def extra_secrets(common_secrets):

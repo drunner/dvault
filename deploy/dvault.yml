@@ -1,0 +1,16 @@
+---
+- hosts: tag_Type_DockerHost
+  user: admin
+  become: root
+  gather_facts: false
+  tasks:
+    - name: Install dVault
+      dservice:
+        state: latest
+        name: dvault
+        image: drunner/dvault
+        config_command: dvault configure
+      environment:
+        VAULT_ADDR: {{ vault_addr }}
+        VAULT_TOKEN: {{ vault_token }}
+        VAULT_CONTEXT: {{ vault_context }}
