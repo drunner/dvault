@@ -1,5 +1,5 @@
 ---
-- hosts: "{{ HostIdentifier }}"
+- hosts: "{{ host_identifier }}"
   user: admin
   become: root
   gather_facts: false
