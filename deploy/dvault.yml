@@ -1,5 +1,5 @@
 ---
-- hosts: tag_Type_DockerHost
+- hosts: "{{ HostIdentifier }}"
   user: admin
   become: root
   gather_facts: false
