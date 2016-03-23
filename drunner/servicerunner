@@ -36,7 +36,7 @@ SYNOPSIS
    ${CODE_S}${SERVICENAME} help${CODE_E}
       This help.
    
-   ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}
+   ${CODE_S}VAULT_CONTEXT=? VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}
       Configure Vault
    
    ${CODE_S}${SERVICENAME} load PROJECT VOLUME [UID] [GID]${CODE_E}
@@ -176,10 +176,10 @@ function main {
          #--- custom commands
          
          configure)
-            [ ! -z "${VAULT_ADDR:-}" ] || die "Vault Address not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
-            [ ! -z "${VAULT_TOKEN:-}" ] || die "Vault Token not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
-            [ ! -z "${VAULT_ENV:-}" ] || die "Vault Environment not found, please run ${CODE_S}VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
-            COMMANDOPTS=("--entrypoint" "/bin/bash" "-e" "VAULT_ADDR=$VAULT_ADDR" "-e" "VAULT_TOKEN=$VAULT_TOKEN" "-e" "VAULT_ENV=$VAULT_ENV")
+            [ ! -z "${VAULT_ADDR:-}" ] || die "Vault Address not found, please run ${CODE_S}VAULT_CONTEXT=? VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
+            [ ! -z "${VAULT_TOKEN:-}" ] || die "Vault Token not found, please run ${CODE_S}VAULT_CONTEXT=? VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
+            [ ! -z "${VAULT_CONTEXT:-}" ] || die "Vault Context not found, please run ${CODE_S}VAULT_CONTEXT=? VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
+            COMMANDOPTS=("--entrypoint" "/bin/bash" "-e" "VAULT_ADDR=$VAULT_ADDR" "-e" "VAULT_TOKEN=$VAULT_TOKEN" "-e" "VAULT_ENV=$VAULT_CONTEXT")
             dockerrun configure
             ;;
             
