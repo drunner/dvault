@@ -8,15 +8,14 @@ RUN echo "druser ALL= (ALL) NOPASSWD:ALL" > /etc/sudoers.d/druser
 RUN wget https://releases.hashicorp.com/vault/0.5.1/vault_0.5.1_linux_amd64.zip \
     && unzip vault_0.5.1_linux_amd64.zip \
     && mv vault /usr/local/bin/vault
-    
+
 RUN pip install hvac
 
 # add in the assets.
 COPY ["./drunner","/drunner"]
 RUN chmod a-w -R /drunner
 
-COPY ["entrypoint.sh", "/entrypoint.sh"]
-RUN mkdir -p /output && chown druser:drgroup /output && chmod a+w /output && chmod a+x /entrypoint.sh
+RUN mkdir -p /output && chown druser:drgroup /output && chmod a+w /output 
 
 COPY ["usrlocalbin", "/usr/local/bin"]
 
@@ -24,6 +23,8 @@ RUN chmod a+x /usr/local/bin/*
 
 VOLUME ["/config"]
 
+# commented out this entrypoint, as configuration is stored in environment variables now
+#ENTRYPOINT ["/entrypoint.sh"]
+
 # lock in druser.
-ENTRYPOINT ["/entrypoint.sh"]
 USER druser
