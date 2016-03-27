@@ -1,13 +1,13 @@
 #!/bin/bash
-                                                                                                                                                          
-#  ad88888ba                                        88                          88888888ba                                                                  
-# d8"     "8b                                       ""                          88      "8b                                                                 
-# Y8,                                                                           88      ,8P                                                                 
-# `Y8aaaaa,     ,adPPYba,  8b,dPPYba,  8b       d8  88   ,adPPYba,   ,adPPYba,  88aaaaaa8P'  88       88  8b,dPPYba,   8b,dPPYba,    ,adPPYba,  8b,dPPYba,  
-#   `"""""8b,  a8P_____88  88P'   "Y8  `8b     d8'  88  a8"     ""  a8P_____88  88""""88'    88       88  88P'   `"8a  88P'   `"8a  a8P_____88  88P'   "Y8  
-#         `8b  8PP"""""""  88           `8b   d8'   88  8b          8PP"""""""  88    `8b    88       88  88       88  88       88  8PP"""""""  88          
-# Y8a     a8P  "8b,   ,aa  88            `8b,d8'    88  "8a,   ,aa  "8b,   ,aa  88     `8b   "8a,   ,a88  88       88  88       88  "8b,   ,aa  88          
-#  "Y88888P"    `"Ybbd8"'  88              "8"      88   `"Ybbd8"'   `"Ybbd8"'  88      `8b   `"YbbdP'Y8  88       88  88       88   `"Ybbd8"'  88          
+
+#  ad88888ba                                        88                          88888888ba
+# d8"     "8b                                       ""                          88      "8b
+# Y8,                                                                           88      ,8P
+# `Y8aaaaa,     ,adPPYba,  8b,dPPYba,  8b       d8  88   ,adPPYba,   ,adPPYba,  88aaaaaa8P'  88       88  8b,dPPYba,   8b,dPPYba,    ,adPPYba,  8b,dPPYba,
+#   `"""""8b,  a8P_____88  88P'   "Y8  `8b     d8'  88  a8"     ""  a8P_____88  88""""88'    88       88  88P'   `"8a  88P'   `"8a  a8P_____88  88P'   "Y8
+#         `8b  8PP"""""""  88           `8b   d8'   88  8b          8PP"""""""  88    `8b    88       88  88       88  88       88  8PP"""""""  88
+# Y8a     a8P  "8b,   ,aa  88            `8b,d8'    88  "8a,   ,aa  "8b,   ,aa  88     `8b   "8a,   ,a88  88       88  88       88  "8b,   ,aa  88
+#  "Y88888P"    `"Ybbd8"'  88              "8"      88   `"Ybbd8"'   `"Ybbd8"'  88      `8b   `"YbbdP'Y8  88       88  88       88   `"Ybbd8"'  88
 
 
 
@@ -31,41 +31,41 @@ function showhelp {
 cat <<EOF >&2
 NAME
    ${SERVICENAME}
-       
+
 SYNOPSIS
    ${CODE_S}${SERVICENAME} help${CODE_E}
       This help.
-   
+
    ${CODE_S}VAULT_CONTEXT=? VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}
       Configure Vault
-   
+
    ${CODE_S}${SERVICENAME} load PROJECT VOLUME [UID] [GID]${CODE_E}
       Load vault values into configuration volume
-   
+
    ${CODE_S}${SERVICENAME} add PROJECT FILE${CODE_E}
       Add (secret) FILE to Vault in the current context under PROJECT. This file will be included in the next load
-      
+
    ${CODE_S}${SERVICENAME} list PROJECT${CODE_E}
       List secrets associated with PROJECT in the current context
-   
+
    ${CODE_S}${SERVICENAME} delete PROJECT SECRET${CODE_E}
       Delete a secret from PROJECT in the current context
-   
+
    ${CODE_S}${SERVICENAME} context [NEW_CONTEXT]${CODE_E}
       With no arguments will show what context ${SERVICENAME} is in. Optional argument changes context
-      
+
    ${CODE_S}${SERVICENAME} import CONFIG_FILE${CODE_E}
-      Imports secrets as set in config file to a defined project. Useful for copying secrets rather than referencing 
-   
+      Imports secrets as set in config file to a defined project. Useful for copying secrets rather than referencing
+
 DESCRIPTION
    Helper container for dRunner managed services using HashiCorp Vault. Can be used in service runner to populated a
    volume with required secrets on install/upgrade if no Vault support is built into the application.
-   
+
 EOF
 }
 
 #------------------------------------------------------------------------------------
-# Run a command in a temporary container. 
+# Run a command in a temporary container.
 # Add "${DOCKEROPTS[@]}" after "${HOSTNAME}" if you are using servicecfg.sh
 
 function dockerrun {
@@ -85,7 +85,7 @@ function dockerexec {
 }
 
 #------------------------------------------------------------------------------------
-# Run a detached command in the container. 
+# Run a detached command in the container.
 
 # detached, can't remove.
 function serviceStart {
@@ -95,14 +95,14 @@ function serviceStart {
 }
 
 #------------------------------------------------------------------------------------
-# Stop the container. 
+# Stop the container.
 
 function serviceStop {
    ! container_running "${SERVICENAME}" || docker stop --time=30 "${SERVICENAME}" >/dev/null 2>&1
 }
 
 #------------------------------------------------------------------------------------
-# Delete the container. 
+# Delete the container.
 
 function serviceDelete {
    ! container_exists "${SERVICENAME}"  || docker rm "${SERVICENAME}" >/dev/null 2>&1
@@ -122,59 +122,33 @@ function getUSERID {
 # The main function. We can add any commands we'd like here!
 
 function main {
-   if [ "$#" -eq 0 ]; then 
+   if [ "$#" -eq 0 ]; then
       die "servicerunner must have the install argument."
    fi
 
    COMMAND="${1}"
    COMMANDOPTS=("-i")
 
-   case "$COMMAND" in 
-   
+   case "$COMMAND" in
+
           #--- standard (required) commands
-   
-         install)
-            ;;
-            
-         obliterate)
-            ;;
-                     
-         uninstall)
-            ;;
-                     
-         backupstart)
-            BACKUPPATH="$2"
-            ;;
-         
-         backupend)
-            BACKUPPATH="$2"
-            ;;
-         
-         restore)
-            RESTOREPATH="$2"
-            ;;
-         
+
          help)
             showhelp
             ;;
-         
+
          enter)
             shift
             COMMANDOPTS=("-it")
             dockerrun /bin/bash "$@"
             ;;
-         
-         updatestart)
-            ;;
 
-         updateend)
-            ;;
-         
+         # for dtest
          selftest)
             ;;
-            
+
          #--- custom commands
-         
+
          configure)
             [ ! -z "${VAULT_ADDR:-}" ] || die "Vault Address not found, please run ${CODE_S}VAULT_CONTEXT=? VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
             [ ! -z "${VAULT_TOKEN:-}" ] || die "Vault Token not found, please run ${CODE_S}VAULT_CONTEXT=? VAULT_ADDR=? VAULT_TOKEN=? ${SERVICENAME} configure${CODE_E}"
@@ -182,41 +156,41 @@ function main {
             COMMANDOPTS=("--entrypoint" "/bin/bash" "-e" "VAULT_ADDR=$VAULT_ADDR" "-e" "VAULT_TOKEN=$VAULT_TOKEN" "-e" "VAULT_ENV=$VAULT_CONTEXT")
             dockerrun configure
             ;;
-            
+
          load)
             [ ! -z "${3:-}" ] || die "Usage: ${SERVICENAME} load PROJECT VOLUME [UID] [GID]"
             if [ ! -z "${4:-}" ]; then CONTAINER_UID="${4}"; else CONTAINER_UID="0"; fi
             if [ ! -z "${5:-}" ]; then CONTAINER_GID="${5}"; else CONTAINER_GID="0"; fi
-            
+
             OUTPUT_VOLUME="$3"
-            
+
             COMMANDOPTS=("-v" "$OUTPUT_VOLUME:/output")
             dockerrun vault-load-wrapper.sh "$2" "$CONTAINER_UID" "$CONTAINER_GID"
             echo "Secrets loaded for ${2}"
             ;;
-            
+
           add)
             [ ! -z "${3:-}" ] || die "Usage: ${SERVICENAME} add PROJECT FILE"
             SECRET_FILE=$(realpath $3)
             FILENAME=$(basename $SECRET_FILE)
             [ -f "${SECRET_FILE}" ] || die "Not a file: ${SECRET_FILE}"
-            
+
             COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "${SECRET_FILE}:/import/secret:ro")
             dockerrun bash -c "vault write secret/dvault/\$VAULT_ENV/${2}/${FILENAME} value=@/import/secret"
             ;;
-          
+
           list)
             [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} ls PROJECT"
-            
+
             dockerrun bash -c "echo \"${CODE_S}Secrets in '\${VAULT_ENV}' context${CODE_E}\"; vault list secret/dvault/\$VAULT_ENV/${2}"
             ;;
-          
+
           delete)
             [ ! -z "${3:-}" ] || die "Usage: ${SERVICENAME} delete PROJECT SECRET"
-            
+
             dockerrun bash -c "vault delete secret/dvault/\$VAULT_ENV/${2}/${3}"
             ;;
-          
+
           context)
             if [ -z "${2:-}" ]; then
                dockerrun bash -c 'echo ${VAULT_ENV}'
@@ -225,21 +199,25 @@ function main {
                echo "${CODE_S}dVault context updated: ${2}${CODE_E}"
             fi
             ;;
-            
+
           import)
             [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} import CONFIG"
             CONFIG_FILE=$(realpath $2)
             [ -f "${CONFIG_FILE}" ] || die "Not a file: ${CONFIG_FILE}"
-            
+
             COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "${CONFIG_FILE}:/import/config.json:ro")
             dockerrun import.py
             ;;
-            
+
          #--- unrecognised commands
 
          *)
+            # For the standard hooks we don't implement we're required to produce
+            # no output and set exit code 127 (E_NOTIMPL).
+            ! isHook ${COMMAND} || exit 127
+
             showhelp
-            die "Unrecognised command ${CODE_S}${COMMAND}${CODE_E}"            
+            die "Unrecognised command ${CODE_S}${COMMAND}${CODE_E}"
             ;;
    esac
 }
