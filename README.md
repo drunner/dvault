@@ -10,7 +10,7 @@ How to install and configure dvault
 
 ```
 drunner install drunner/dvault
-VAULT_ADDR=? VAULT_TOKEN=? VAULT_ENV=? dvault configure
+VAULT_ADDR=? VAULT_TOKEN=? VAULT_CONTEXT=? dvault configure
 ```
 
 #### VAULT_ADDR
@@ -19,7 +19,7 @@ The address of HashiCorp Vault, e.g. `https://vault.example.com:8200`
 #### VAULT_TOKEN
 Token with a read and write access to `secret/dvault` at least
 
-#### VAULT_ENV
+#### VAULT_CONTEXT
 Arbitrary environment where dVault is running, could be `live`, `staging`, `dev`, etc.
 
 ## Usage

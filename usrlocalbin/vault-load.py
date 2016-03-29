@@ -7,7 +7,7 @@ import hvac
 import subprocess
 
 PROJECT = sys.argv[1]
-SECRET_PATH = "secret/dvault/"+os.environ['VAULT_ENV']+"/"+PROJECT+"/"
+SECRET_PATH = "secret/dvault/"+os.environ['VAULT_CONTEXT']+"/"+PROJECT+"/"
 
 client = hvac.Client(url=os.environ['VAULT_ADDR'], token=os.environ['VAULT_TOKEN'])
 
@@ -24,9 +24,9 @@ def load_secrets(project):
    
 def extra_secrets(common_secrets):
    data = json.loads(common_secrets)
-   if os.environ['VAULT_ENV'] not in data:
+   if os.environ['VAULT_CONTEXT'] not in data:
       return
-   for secret in data[os.environ['VAULT_ENV']]:
+   for secret in data[os.environ['VAULT_CONTEXT']]:
       filename = os.path.basename(secret)
       f = open('/tmp/output/'+filename, 'w')
       s = client.read('secret/'+secret)
