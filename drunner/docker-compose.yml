@@ -5,7 +5,7 @@ version: '2'
 
 # if we don't want to use dRunner's environment variables for our
 # configuraiton we should reinstate the config volume with this.
-#volumes:
-#   config:
-#      external:
-#         name: "drunner-${SERVICENAME}-config"
+volumes:
+  config:
+     external:
+        name: "drunner-${SERVICENAME}-config"
