@@ -2,6 +2,8 @@
 FROM drunner/baseimage-alpine
 MAINTAINER drunner
 
+USER root
+
 RUN apk add --update bash curl wget gnupg python py-pip sudo && rm -rf /var/cache/apk/*
 RUN echo "druser ALL= (ALL) NOPASSWD:ALL" > /etc/sudoers.d/druser
 
