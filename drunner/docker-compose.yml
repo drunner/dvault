@@ -2,6 +2,28 @@ version: '2'
 
 # we manage services manually in servicerunner, so there's no services
 # section.
+services:
+   dvault:
+      image: drunner/dvault
+      environemnt:
+         - VAULT_ADDR
+         - VAULT_TOKEN
+         - VAULT_CONTEXT
+      volumes:
+         - "config:/config"
+      network-mode: "bridge"
+
+   dvault-load:
+      image: drunner/dvault
+      environemnt:
+         - VAULT_ADDR
+         - VAULT_TOKEN
+         - VAULT_CONTEXT
+      volumes:
+         - "config:/config"
+         - "${OUTPUT_VOLUME}:/output"
+      network-mode: "bridge"
+
 
 # if we don't want to use dRunner's environment variables for our
 # configuraiton we should reinstate the config volume with this.
