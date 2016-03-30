@@ -1,6 +1,30 @@
 version: '2'
 
+services:
+   dvault:
+      image: drunner/dvault
+      environment:
+         - VAULT_ADDR
+         - VAULT_TOKEN
+         - VAULT_CONTEXT
+      volumes:
+         - "config:/config"
+      network_mode: "bridge"
+
+services:
+   dvault-load:
+      image: drunner/dvault
+      environment:
+         - VAULT_ADDR
+         - VAULT_TOKEN
+         - VAULT_CONTEXT
+      volumes:
+         - "config:/config"
+         - "${LOAD_VOLUME}:/load"
+      network_mode: "bridge"
+
 volumes:
    config:
       external:
          name: "drunner-${SERVICENAME}-config"
+         
