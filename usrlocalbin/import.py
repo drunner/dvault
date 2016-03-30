@@ -6,7 +6,7 @@ import json
 import hvac
 import subprocess
 
-with open('/load') as data_file:
+with open('/import/config.json') as data_file:
    try:
       data = json.load(data_file)
    except ValueError, e:
