@@ -19,11 +19,14 @@ services:
          - VAULT_CONTEXT
       volumes:
          - "config:/config"
-         - "${LOAD_VOLUME}:/load"
+         - "${LOAD_PATH}:/load"
       network_mode: "bridge"
 
 volumes:
    config:
       external:
          name: "drunner-${SERVICENAME}-config"
+   load:
+      external:
+         name: "${LOAD_VOLUME}"
          
