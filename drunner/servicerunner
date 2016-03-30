@@ -105,8 +105,8 @@ function main {
             if [ ! -z "${4:-}" ]; then CONTAINER_UID="${4}"; else CONTAINER_UID="0"; fi
             if [ ! -z "${5:-}" ]; then CONTAINER_GID="${5}"; else CONTAINER_GID="0"; fi
 
-            save_environment "LOAD_PATH" "load"
-            save_environment "LOAD_VOLUME" "$3"
+            export LOAD_PATH=load
+            export LOAD_VOLUME="$3"
             docker-compose -p "${SERVICENAME}" run --rm -T dvault-load vault-load-wrapper.sh "$2" "$CONTAINER_UID" "$CONTAINER_GID"
             echo "Secrets loaded for ${2}"
             ;;
@@ -117,8 +117,8 @@ function main {
             FILENAME=$(basename $SECRET_FILE)
             [ -f "${SECRET_FILE}" ] || die "Not a file: ${SECRET_FILE}"
 
-            save_environment "LOAD_PATH" "${SECRET_FILE}"
-            save_environment "LOAD_VOLUME" "drunner-dvault-tmp"
+            export LOAD_PATH="${SECRET_FILE}"
+            export LOAD_VOLUME="drunner-dvault-tmp"
             docker-compose -p "${SERVICENAME}" run --rm -T "--user=\"$(id -u):$(id -g)\"" dvault-load bash -c "vault write secret/dvault/\$VAULT_CONTEXT/${2}/${FILENAME} value=@/load"
             ;;
 
@@ -148,8 +148,8 @@ function main {
             CONFIG_FILE=$(realpath $2)
             [ -f "${CONFIG_FILE}" ] || die "Not a file: ${CONFIG_FILE}"
 
-            save_environment "LOAD_PATH" "${CONFIG_FILE}"
-            save_environment "LOAD_VOLUME" "drunner-dvault-tmp"
+            export LOAD_PATH="${CONFIG_FILE}"
+            export LOAD_VOLUME="drunner-dvault-tmp"
             docker-compose -p "${SERVICENAME}" run --rm -T "--user=\"$(id -u):$(id -g)\"" dvault-load import.py
             ;;
 
