@@ -86,7 +86,7 @@ function main {
    COMMANDOPTS=("-i")
    
    # default to something safe
-   LOAD_VOLUME=${SERVICETEMPDIR}
+   LOAD_VOLUME="${SERVICETEMPDIR}"
 
    case "$COMMAND" in
 
