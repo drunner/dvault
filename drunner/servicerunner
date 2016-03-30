@@ -86,7 +86,7 @@ function main {
    COMMANDOPTS=("-i")
    
    # default to something safe
-   OUTPUT_VOLUME=${SERVICETEMPDIR}
+   LOAD_VOLUME=${SERVICETEMPDIR}
 
    case "$COMMAND" in
 
@@ -118,7 +118,7 @@ function main {
             if [ ! -z "${4:-}" ]; then CONTAINER_UID="${4}"; else CONTAINER_UID="0"; fi
             if [ ! -z "${5:-}" ]; then CONTAINER_GID="${5}"; else CONTAINER_GID="0"; fi
 
-            OUTPUT_VOLUME="$3"
+            LOAD_VOLUME="$3"
             docker-compose -p "${SERVICENAME}" run dvault-load vault-load-wrapper.sh "$2" "$CONTAINER_UID" "$CONTAINER_GID"
             echo "Secrets loaded for ${2}"
             ;;
@@ -129,20 +129,20 @@ function main {
             FILENAME=$(basename $SECRET_FILE)
             [ -f "${SECRET_FILE}" ] || die "Not a file: ${SECRET_FILE}"
 
-            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "${SECRET_FILE}:/import/secret:ro")
-            dockerrun bash -c "vault write secret/dvault/\$VAULT_CONTEXT/${2}/${FILENAME} value=@/import/secret"
+            LOAD_VOLUME="${SECRET_FILE}"
+            docker-compose -p "${SERVICENAME}" "--user=\"$(id -u):$(id -g)\"" run dvault-load bash -c "vault write secret/dvault/\$VAULT_CONTEXT/${2}/${FILENAME} value=@/load"
             ;;
 
           list)
             [ ! -z "${2:-}" ] || die "Usage: ${SERVICENAME} ls PROJECT"
 
-            dockerrun bash -c "echo \"${CODE_S}Secrets in '\${VAULT_CONTEXT}' context${CODE_E}\"; vault list secret/dvault/\$VAULT_CONTEXT/${2}"
+            docker-compose -p "${SERVICENAME}" "--user=\"$(id -u):$(id -g)\"" run dvault bash -c "echo \"${CODE_S}Secrets in '\${VAULT_CONTEXT}' context${CODE_E}\"; vault list secret/dvault/\$VAULT_CONTEXT/${2}"
             ;;
 
           delete)
             [ ! -z "${3:-}" ] || die "Usage: ${SERVICENAME} delete PROJECT SECRET"
 
-            dockerrun bash -c "vault delete secret/dvault/\$VAULT_CONTEXT/${2}/${3}"
+            docker-compose -p "${SERVICENAME}" "--user=\"$(id -u):$(id -g)\"" run dvault bash -c "vault delete secret/dvault/\$VAULT_CONTEXT/${2}/${3}"
             ;;
 
           context)
@@ -159,8 +159,8 @@ function main {
             CONFIG_FILE=$(realpath $2)
             [ -f "${CONFIG_FILE}" ] || die "Not a file: ${CONFIG_FILE}"
 
-            COMMANDOPTS=("--user=\"$(id -u):$(id -g)\"" "-v" "${CONFIG_FILE}:/import/config.json:ro")
-            dockerrun import.py
+            LOAD_VOLUME="${CONFIG_FILE}"
+            docker-compose -p "${SERVICENAME}" "--user=\"$(id -u):$(id -g)\"" run dvault-load import.py
             ;;
 
          #--- unrecognised commands
