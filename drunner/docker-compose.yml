@@ -37,6 +37,7 @@ volumes:
    drunner-config:
       external:
          name: "drunner-${SERVICENAME}-config"
+   # 'load' is not managed by drunner.  Used to load in another services volume
    load:
       external:
          name: "${LOAD_VOLUME}"
