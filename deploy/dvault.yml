@@ -11,6 +11,8 @@
         image: drunner/dvault
         install_config:
           - dvault configure
+        out_port:
+          - 8200
       environment:
         VAULT_ADDR: "{{ vault_addr }}"
         VAULT_TOKEN: "{{ vault_token }}"
